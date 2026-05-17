@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>#FADL — Fitness All Day Long</title>
+<title>#FADL | Fitness All Day Long</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,700;0,900;1,900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet"/>
 <style>
 :root {
@@ -387,6 +387,8 @@ footer {
   .footer-bottom { flex-direction:column; text-align:center; }
   .waitlist-form { flex-direction:column; }
   .waitlist-section { padding:70px 24px; }
+  #legal > div { grid-template-columns:1fr !important; gap:40px !important; padding:60px 20px !important; }
+  #about .reveal[style*="grid-template-columns:repeat(4"] { grid-template-columns:1fr 1fr !important; }
 }
 </style>
 </head>
@@ -400,7 +402,8 @@ footer {
     <a href="#links">Follow</a>
     <a href="#shop">Shop</a>
     <a href="#contact">Contact</a>
-    <a href="https://www.instagram.com/fitnessalldaylong_" target="_blank" class="nav-cta">Instagram</a>
+    <a href="#legal">Legal</a>
+    <a href="https://fitnessalldaylongapp.netlify.app/" target="_blank" class="nav-cta">Get My Plan</a>
   </div>
   <div class="hamburger" id="hamburger">
     <span></span><span></span><span></span>
@@ -413,7 +416,8 @@ footer {
   <a href="#links" onclick="closeMobile()">Follow</a>
   <a href="#shop" onclick="closeMobile()">Shop</a>
   <a href="#contact" onclick="closeMobile()">Contact</a>
-  <a href="https://www.instagram.com/fitnessalldaylong_" target="_blank" class="m-cta">Instagram</a>
+  <a href="#legal" onclick="closeMobile()">Legal</a>
+  <a href="https://fitnessalldaylongapp.netlify.app/" target="_blank" class="m-cta">Get My Plan</a>
 </div>
 
 <!-- HERO -->
@@ -466,7 +470,7 @@ footer {
 <!-- STATS BAR -->
 <div class="stats-bar">
   <div class="stat-item reveal">
-    <div class="stat-n">8K+</div>
+    <div class="stat-n">6K+</div>
     <div class="stat-l">Instagram Followers</div>
   </div>
   <div class="stat-item reveal reveal-delay">
@@ -514,24 +518,52 @@ footer {
       <h2 class="section-title reveal"><span class="title-accent">Built</span><br/>for people<br/>who show up.</h2>
       <div class="section-rule reveal"></div>
       <div class="about-body reveal">
-        <p><strong>Fitness All Day Long</strong> is a community built around one idea — showing up consistently, even when motivation is zero.</p>
-        <p>We cut through the noise and deliver <strong>real fitness knowledge</strong> — workouts, nutrition, mindset — without the BS, the gatekeeping, or the expensive programmes.</p>
-        <p>Whether you're on day one or year three, <strong>#FADL is for you.</strong></p>
+        <p><strong>Fitness All Day Long (#FADL)</strong> was built for one reason: to give everyone access to real fitness knowledge without the gatekeeping, the overpriced programmes or the BS.</p>
+        <p>Most fitness content online is designed to keep you confused. Complicated splits, expensive supplements, conflicting advice. We cut through all of it and give you <strong>what actually works.</strong> Backed by science. Delivered simply.</p>
+        <p>Whether you're just starting out, getting back into it after years away, training at home with dumbbells, in a commercial gym, or working around a disability. <strong>#FADL is built for you.</strong></p>
+        <p>Every plan we build is <strong>personalised to your goal, your equipment and your life.</strong> No generic programmes. No one-size-fits-all. Just your plan, built around you.</p>
       </div>
     </div>
     <div class="about-panels">
       <div class="about-panel reveal">
-        <div class="panel-n">💪</div>
-        <div class="panel-l" style="font-size:15px;color:#888;margin-top:8px">Workouts designed for real results — not just aesthetics.</div>
+        <div class="panel-n" style="font-size:36px;font-weight:900;color:var(--accent);font-family:'Barlow Condensed',sans-serif">NO BS</div>
+        <div style="font-size:13px;color:var(--accent);letter-spacing:0.1em;text-transform:uppercase;margin-top:4px;font-weight:700">Our Promise</div>
+        <div style="font-size:15px;color:#888;margin-top:10px;line-height:1.7">No confusing jargon. No upselling. No overcomplicating what is actually simple. Just honest fitness content that works.</div>
       </div>
       <div class="about-panel reveal reveal-delay">
-        <div class="panel-n">🥗</div>
-        <div class="panel-l" style="font-size:15px;color:#888;margin-top:8px">Nutrition advice that's actually practical and sustainable.</div>
+        <div class="panel-n" style="font-size:36px;font-weight:900;color:var(--accent);font-family:'Barlow Condensed',sans-serif">FOR EVERYONE</div>
+        <div style="font-size:13px;color:var(--accent);letter-spacing:0.1em;text-transform:uppercase;margin-top:4px;font-weight:700">Inclusive Fitness</div>
+        <div style="font-size:15px;color:#888;margin-top:10px;line-height:1.7">Our personalised plans adapt to your mobility, your equipment and your experience level. Including fully adapted programmes for wheelchair users and people with physical limitations.</div>
       </div>
       <div class="about-panel reveal reveal-delay2">
-        <div class="panel-n">🧠</div>
-        <div class="panel-l" style="font-size:15px;color:#888;margin-top:8px">Mindset content that keeps you going when it gets hard.</div>
+        <div class="panel-n" style="font-size:36px;font-weight:900;color:var(--accent);font-family:'Barlow Condensed',sans-serif">CONSISTENT</div>
+        <div style="font-size:13px;color:var(--accent);letter-spacing:0.1em;text-transform:uppercase;margin-top:4px;font-weight:700">The Only Rule</div>
+        <div style="font-size:15px;color:#888;margin-top:10px;line-height:1.7">Consistency beats perfection every time. We build content and programmes around real life. Not an idealised version of it. Show up. That's it.</div>
       </div>
+    </div>
+  </div>
+
+  <!-- What we offer strip -->
+  <div style="margin-top:80px;display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:8px;overflow:hidden" class="reveal">
+    <div style="padding:32px 24px;background:var(--card);text-align:center">
+      <div style="font-size:32px;margin-bottom:12px">💪</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;color:var(--text);margin-bottom:8px">Workouts</div>
+      <div style="font-size:13px;color:#666;line-height:1.7">Progressive programmes built for real results. 3 phases. 12 weeks. Zero fluff.</div>
+    </div>
+    <div style="padding:32px 24px;background:var(--card);text-align:center">
+      <div style="font-size:32px;margin-bottom:12px">🥗</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;color:var(--text);margin-bottom:8px">Nutrition</div>
+      <div style="font-size:13px;color:#666;line-height:1.7">Practical nutrition guidance tailored to your goal: muscle, fat loss or both.</div>
+    </div>
+    <div style="padding:32px 24px;background:var(--card);text-align:center">
+      <div style="font-size:32px;margin-bottom:12px">🧠</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;color:var(--text);margin-bottom:8px">Mindset</div>
+      <div style="font-size:13px;color:#666;line-height:1.7">The mental side of fitness nobody talks about. Consistency, discipline, progress.</div>
+    </div>
+    <div style="padding:32px 24px;background:var(--card);text-align:center">
+      <div style="font-size:32px;margin-bottom:12px">♿</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;color:var(--text);margin-bottom:8px">Inclusive</div>
+      <div style="font-size:13px;color:#666;line-height:1.7">Fully adapted plans for wheelchair users and people with physical limitations.</div>
     </div>
   </div>
 </div>
@@ -544,19 +576,19 @@ footer {
     <div class="section-rule reveal" style="margin:24px auto 48px"></div>
     <div class="links-wrap">
       <a href="https://www.instagram.com/fitnessalldaylong_" target="_blank" class="link-card reveal">
-        <div class="lc-left"><div class="lc-icon">📸</div><div><div class="lc-name">Instagram</div><div class="lc-desc">@fitnessalldaylong_ — Daily carousels & reels</div></div></div>
+        <div class="lc-left"><div class="lc-icon">📸</div><div><div class="lc-name">Instagram</div><div class="lc-desc">@fitnessalldaylong_ · Daily carousels & reels</div></div></div>
         <div class="lc-arr">→</div>
       </a>
       <a href="https://www.tiktok.com/@fitnessalldaylong" target="_blank" class="link-card reveal reveal-delay">
-        <div class="lc-left"><div class="lc-icon">🎵</div><div><div class="lc-name">TikTok</div><div class="lc-desc">@fitnessalldaylong — Reels & trending content</div></div></div>
+        <div class="lc-left"><div class="lc-icon">🎵</div><div><div class="lc-name">TikTok</div><div class="lc-desc">@fitnessalldaylong · Reels & trending content</div></div></div>
         <div class="lc-arr">→</div>
       </a>
       <a href="#" class="link-card reveal reveal-delay">
-        <div class="lc-left"><div class="lc-icon">💊</div><div><div class="lc-name">Supplements</div><div class="lc-desc">Our recommended protein & supps — affiliate link</div></div></div>
+        <div class="lc-left"><div class="lc-icon">💊</div><div><div class="lc-name">Supplements</div><div class="lc-desc">Our recommended protein and supps</div></div></div>
         <div class="lc-arr">→</div>
       </a>
       <a href="#" class="link-card reveal reveal-delay2">
-        <div class="lc-left"><div class="lc-icon">🏋️</div><div><div class="lc-name">Gym Equipment</div><div class="lc-desc">Our recommended gear — affiliate link</div></div></div>
+        <div class="lc-left"><div class="lc-icon">🏋️</div><div><div class="lc-name">Gym Equipment</div><div class="lc-desc">Our recommended gear</div></div></div>
         <div class="lc-arr">→</div>
       </a>
     </div>
@@ -567,7 +599,7 @@ footer {
 <div class="waitlist-section" id="waitlist">
   <div class="waitlist-inner">
     <h2 class="waitlist-title">Be First.<br/>Join the List.</h2>
-    <p class="waitlist-sub">Digital products dropping soon — workout plans, nutrition guides, and the full FADL bundle. Get early access and launch pricing before anyone else.</p>
+    <p class="waitlist-sub">Digital products dropping soon. Workout plans, nutrition guides, and the full FADL bundle. Get early access and launch pricing before anyone else.</p>
     <div class="waitlist-form">
       <input class="waitlist-input" type="email" placeholder="your@email.com" id="waitlistEmail"/>
       <button class="waitlist-btn" onclick="joinWaitlist()">JOIN</button>
@@ -582,31 +614,38 @@ footer {
   <div class="eyebrow reveal">Products</div>
   <h2 class="section-title reveal">The FADL<br/><span class="title-accent">Shop.</span></h2>
   <div class="section-rule reveal"></div>
-  <p class="reveal" style="font-size:17px;color:var(--muted);margin-bottom:48px;max-width:520px">Plans built specifically for you. Answer 6 questions and get a programme tailored to your goal, your equipment and your schedule.</p>
+  <p class="reveal" style="font-size:17px;color:var(--muted);margin-bottom:48px;max-width:520px">Everything in one membership. Personalised workout plan, nutrition guide and progress tracker. All built around you.</p>
   <div class="shop-grid">
     <div class="shop-card reveal" style="border-color:rgba(240,255,0,0.4)">
       <div class="badge" style="background:rgba(240,255,0,0.15);border-color:var(--accent)">🔥 Available Now</div>
-      <div class="shop-name">Personalised 12 Week Plan</div>
-      <div class="shop-desc">Answer 6 questions and get a 12 week programme built specifically for you — your goal, your equipment, your schedule. AI-generated and unique to you. No generic plans.</div>
+      <div class="shop-name">FADL Membership</div>
+      <div class="shop-desc">Everything you need in one place. Personalised 12 week workout plan, personalised nutrition guide with calorie and macro targets, progress tracker and full support.</div>
       <div class="shop-price">£14.99</div>
-      <div class="shop-price-note">£14.99/month · Cancel anytime · Personalised to you</div>
-      <a href="https://fitnessalldaylongapp.netlify.app/" target="_blank" style="display:block;width:100%;margin-top:24px;padding:16px;background:var(--accent);border-radius:4px;font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:900;letter-spacing:0.1em;color:var(--bg);text-align:center;text-decoration:none;text-transform:uppercase;transition:all 0.2s" onmouseover="this.style.background='#fff'" onmouseout="this.style.background='var(--accent)'">Build My Plan — £14.99/mo</a>
+      <div class="shop-price-note">£14.99/month · Cancel anytime · Everything included</div>
+      <div style="margin:16px 0 8px;display:flex;flex-direction:column;gap:6px">
+        <div style="font-size:13px;color:#888">✓ Personalised 12 week workout plan</div>
+        <div style="font-size:13px;color:#888">✓ Personalised nutrition and macro guide</div>
+        <div style="font-size:13px;color:#888">✓ Progress tracker that saves your data</div>
+        <div style="font-size:13px;color:#888">✓ Wheelchair and mobility adaptations</div>
+        <div style="font-size:13px;color:#888">✓ Cancel anytime</div>
+      </div>
+      <a href="https://fitnessalldaylongapp.netlify.app/" target="_blank" style="display:block;width:100%;margin-top:16px;padding:16px;background:var(--accent);border-radius:4px;font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:900;letter-spacing:0.1em;color:var(--bg);text-align:center;text-decoration:none;text-transform:uppercase;transition:all 0.2s" onmouseover="this.style.background='#fff'" onmouseout="this.style.background='var(--accent)'">Get Started · £14.99/mo</a>
     </div>
     <div class="shop-card reveal reveal-delay">
       <div class="badge">Coming Soon</div>
-      <div class="shop-name">Nutrition Guide</div>
-      <div class="shop-desc">Everything you need to eat for your goals. Meal plans, macro targets, food lists and a full week of prep included.</div>
-      <div class="shop-price">£7.99</div>
-      <div class="shop-price-note">One-time payment · Instant download</div>
+      <div class="shop-name">FADL Pro</div>
+      <div class="shop-desc">Everything in the membership plus 1-to-1 check-ins, form feedback, custom plan adjustments and access to the FADL community.</div>
+      <div class="shop-price">£29.99</div>
+      <div class="shop-price-note">£29.99/month · Launching soon</div>
       <div class="shop-action">Notify Me When Live</div>
     </div>
-    <div class="shop-card reveal reveal-delay2" style="border-color:rgba(240,255,0,0.3)">
-      <div class="badge" style="background:rgba(240,255,0,0.15)">Best Value</div>
-      <div class="shop-name">The FADL Bundle</div>
-      <div class="shop-desc">Personalised workout plan + Nutrition guide + Mindset workbook. The full system that actually works.</div>
-      <div class="shop-price">£24.99</div>
-      <div class="shop-price-note">£24.99/month · Cancel anytime</div>
-      <div class="shop-action">Coming Soon</div>
+    <div class="shop-card reveal reveal-delay2" style="border-color:rgba(240,255,0,0.2)">
+      <div class="badge" style="background:rgba(240,255,0,0.1)">Coming Soon</div>
+      <div class="shop-name">FADL Community</div>
+      <div class="shop-desc">Join a group of people on the same journey. Accountability, shared progress, challenges and exclusive content.</div>
+      <div class="shop-price">Free</div>
+      <div class="shop-price-note">Launching on Discord soon</div>
+      <div class="shop-action">Notify Me When Live</div>
     </div>
   </div>
 </div>
@@ -620,7 +659,7 @@ footer {
         <h2 class="section-title reveal">Let's<br/><span class="title-accent">collab.</span></h2>
         <div class="section-rule reveal"></div>
         <p class="contact-body reveal">Brand partnerships, sponsorships, or just want to say hello. We work with brands that align with the #FADL community.</p>
-        <a href="mailto:fitnessalldaylong@gmail.com" class="contact-email reveal">fitnessalldaylong@gmail.com</a>
+        <a href="mailto:fitnessalldaylong@protonmail.com" class="contact-email reveal">fitnessalldaylong@protonmail.com</a>
         <div class="reveal">
           <a href="https://www.instagram.com/fitnessalldaylong_" target="_blank" class="btn-primary">DM on Instagram</a>
         </div>
@@ -644,12 +683,49 @@ footer {
   </div>
 </div>
 
+<!-- LEGAL -->
+<div style="background:#080808;border-top:1px solid #1a1a1a" id="legal">
+  <div style="max-width:1200px;margin:0 auto;padding:80px 48px;display:grid;grid-template-columns:1fr 1fr;gap:60px">
+
+    <!-- T&Cs -->
+    <div>
+      <div style="font-size:11px;font-weight:700;color:var(--accent);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:16px">📄 Terms & Conditions</div>
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div><div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:3px">Service</div><div style="font-size:13px;color:#555;line-height:1.7">FADL provides personalised digital fitness programmes on a monthly subscription basis via fitnessalldaylongapp.netlify.app.</div></div>
+        <div><div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:3px">Subscription</div><div style="font-size:13px;color:#555;line-height:1.7">£14.99/month billed via Stripe. You authorise recurring monthly charges until cancelled.</div></div>
+        <div><div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:3px">Cancellation</div><div style="font-size:13px;color:#555;line-height:1.7">Cancel anytime by emailing fitnessalldaylong@protonmail.com. Access continues until end of billing period.</div></div>
+        <div><div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:3px">No Refunds</div><div style="font-size:13px;color:#555;line-height:1.7">All payments are non-refundable. Once a billing period starts no refunds are issued.</div></div>
+        <div><div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:3px">14-Day Waiver</div><div style="font-size:13px;color:#555;line-height:1.7">By requesting immediate access at checkout you waive your 14-day cooling off right under Consumer Contracts Regulations 2013.</div></div>
+        <div><div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:3px">Health Disclaimer</div><div style="font-size:13px;color:#555;line-height:1.7">Plans are for general fitness only and not medical advice. Always consult a medical professional before starting. FADL accepts no liability for injury or adverse health effects.</div></div>
+        <div><div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:3px">Intellectual Property</div><div style="font-size:13px;color:#555;line-height:1.7">Content is for personal use only. Sharing, distributing or reselling is prohibited.</div></div>
+        <div><div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:3px">Governing Law</div><div style="font-size:13px;color:#555;line-height:1.7">Governed by the laws of England and Wales.</div></div>
+      </div>
+    </div>
+
+    <!-- Privacy Policy -->
+    <div>
+      <div style="font-size:11px;font-weight:700;color:var(--accent);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:16px">🔒 Privacy Policy</div>
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div><div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:3px">Who We Are</div><div style="font-size:13px;color:#555;line-height:1.7">Fitness All Day Long (FADL) · fitnessalldaylong@protonmail.com</div></div>
+        <div><div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:3px">Data We Collect</div><div style="font-size:13px;color:#555;line-height:1.7">Name, email address, workout preferences and progress data when you sign up and use the app.</div></div>
+        <div><div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:3px">How We Use It</div><div style="font-size:13px;color:#555;line-height:1.7">To create your account, generate your personalised plan, process payments and communicate about your subscription.</div></div>
+        <div><div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:3px">Who We Share With</div><div style="font-size:13px;color:#555;line-height:1.7">Stripe (payment processing) and Supabase (authentication and data storage). We never sell your data.</div></div>
+        <div><div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:3px">Your GDPR Rights</div><div style="font-size:13px;color:#555;line-height:1.7">You have the right to access, correct or delete your data at any time. Email fitnessalldaylong@protonmail.com to exercise these rights.</div></div>
+        <div><div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:3px">Data Retention</div><div style="font-size:13px;color:#555;line-height:1.7">Data retained while your subscription is active. Deleted within 30 days of cancellation upon request.</div></div>
+        <div><div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:3px">Cookies</div><div style="font-size:13px;color:#555;line-height:1.7">We do not use tracking cookies. Login sessions are stored locally on your device only.</div></div>
+        <div><div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:3px">Contact</div><div style="font-size:13px;color:#555;line-height:1.7">fitnessalldaylong@protonmail.com</div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
 <!-- FOOTER -->
 <footer>
   <div class="footer-top">
     <div>
       <div class="footer-logo"><span class="hash">#</span>FADL</div>
-      <div class="footer-tagline">Fitness All Day Long — Every day. No excuses.</div>
+      <div class="footer-tagline">Fitness All Day Long. Every day. No excuses.</div>
     </div>
     <div class="footer-links">
       <a href="#about">About</a>
@@ -657,10 +733,11 @@ footer {
       <a href="#shop">Shop</a>
       <a href="#waitlist">Waitlist</a>
       <a href="#contact">Contact</a>
+      <a href="#legal">Legal</a>
     </div>
   </div>
   <div class="footer-bottom">
-    <span>© 2025 <strong>#FADL</strong> · fitnessalldaylong_</span>
+    <span>© 2025 <strong>#FADL</strong> · fitnessalldaylong_ · fitnessalldaylong@protonmail.com</span>
     <span style="display:flex;gap:20px">
       <a href="https://www.instagram.com/fitnessalldaylong_" target="_blank" style="color:var(--muted);text-decoration:none;font-size:12px;transition:color 0.2s" onmouseover="this.style.color='#F0FF00'" onmouseout="this.style.color='var(--muted)'">Instagram</a>
       <a href="https://www.tiktok.com/@fitnessalldaylong" target="_blank" style="color:var(--muted);text-decoration:none;font-size:12px;transition:color 0.2s" onmouseover="this.style.color='#F0FF00'" onmouseout="this.style.color='var(--muted)'">TikTok</a>
@@ -722,7 +799,7 @@ const statObs = new IntersectionObserver(entries => {
   entries.forEach(e => {
     if (e.isIntersecting) {
       const nums = e.target.querySelectorAll('.stat-n');
-      nums[0] && animateCounter(nums[0], 8, 'K+');
+      nums[0] && animateCounter(nums[0], 6, 'K+');
       statObs.unobserve(e.target);
     }
   });
