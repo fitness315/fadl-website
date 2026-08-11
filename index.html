@@ -665,17 +665,17 @@ footer {
       <div class="contact-form-card reveal reveal-delay">
         <div class="form-group">
           <label class="form-label">Your Name</label>
-          <input class="form-input" type="text" placeholder="Name"/>
+          <input class="form-input" type="text" placeholder="Name" id="contactName"/>
         </div>
         <div class="form-group">
           <label class="form-label">Email</label>
-          <input class="form-input" type="email" placeholder="your@email.com"/>
+          <input class="form-input" type="email" placeholder="your@email.com" id="contactEmail"/>
         </div>
         <div class="form-group">
           <label class="form-label">Message</label>
-          <textarea class="form-input" placeholder="Tell us about the collab..."></textarea>
+          <textarea class="form-input" placeholder="Tell us about the collab..." id="contactMessage"></textarea>
         </div>
-        <button class="form-submit" onclick="this.textContent='Message Sent ✅'">Send Message</button>
+        <button class="form-submit" id="contactSubmit" onclick="submitContact()">Send Message</button>
       </div>
     </div>
   </div>
@@ -694,7 +694,7 @@ footer {
       <a href="#shop">Shop</a>
       <a href="#waitlist">Waitlist</a>
       <a href="#contact">Contact</a>
-      <a href="https://fadl-website.pages.dev/legal" target="_blank">Legal</a>
+      <a href="/legal">Legal</a>
     </div>
   </div>
   <div class="footer-bottom">
@@ -733,12 +733,35 @@ const obs = new IntersectionObserver(entries => {
 }, { threshold: 0.1 });
 reveals.forEach(r => obs.observe(r));
 
-// Waitlist
+// Waitlist — opens the user's email app with a prefilled message, same
+// pattern as the "Notify Me When Live" links elsewhere on this page.
+// There is no backend to silently capture the address, so this is the
+// only honest way to actually deliver it to us.
 function joinWaitlist() {
   const email = document.getElementById('waitlistEmail').value;
   if (!email || !email.includes('@')) { alert('Please enter a valid email'); return; }
+  const subject = encodeURIComponent('Waitlist Signup');
+  const body = encodeURIComponent(`Please add me to the FADL waitlist.\n\nMy email: ${email}`);
+  window.location.href = `mailto:fitnessalldaylong@protonmail.com?subject=${subject}&body=${body}`;
   document.querySelector('.waitlist-form').style.display = 'none';
+  document.getElementById('waitlistSuccess').textContent = '📧 Opening your email app to confirm...';
   document.getElementById('waitlistSuccess').style.display = 'block';
+}
+
+// Contact form — same reasoning as joinWaitlist above: opens the user's
+// email app with the message prefilled rather than pretending to send it.
+function submitContact() {
+  const name = document.getElementById('contactName').value.trim();
+  const email = document.getElementById('contactEmail').value.trim();
+  const message = document.getElementById('contactMessage').value.trim();
+  if (!name || !email || !email.includes('@') || !message) {
+    alert('Please fill in your name, a valid email, and a message.');
+    return;
+  }
+  const subject = encodeURIComponent(`New enquiry from ${name}`);
+  const body = encodeURIComponent(`${message}\n\n— ${name} (${email})`);
+  window.location.href = `mailto:fitnessalldaylong@protonmail.com?subject=${subject}&body=${body}`;
+  document.getElementById('contactSubmit').textContent = 'Opening your email app...';
 }
 
 // Counter animation
