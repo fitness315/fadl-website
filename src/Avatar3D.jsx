@@ -3,6 +3,12 @@ import { OrbitControls, RoundedBox, ContactShadows } from "@react-three/drei";
 
 const AC = "#F0FF00", GEAR = "#333333";
 
+// Shared vertical anchors so the wheelchair frame and the seated legs
+// line up: hips sit at local y=1.05, the seat cushion just under them,
+// and the ground plane matches the group's own -1.15 local offset.
+const SEAT_Y = 0.78;
+const GROUND_Y = -1.15;
+
 const CAP = 20;
 const norm = (v) => Math.min(v, CAP) / CAP;
 
@@ -19,8 +25,8 @@ function Ball({ radius, position, scale, color }) {
   return <Skin position={position} scale={scale} color={color}><sphereGeometry args={[radius, 24, 24]} /></Skin>;
 }
 
-function Limb({ radius, length, position, color }) {
-  return <Skin position={position} color={color}><capsuleGeometry args={[radius, length, 8, 20]} /></Skin>;
+function Limb({ radius, length, position, rotation, color }) {
+  return <Skin position={position} rotation={rotation} color={color}><capsuleGeometry args={[radius, length, 8, 20]} /></Skin>;
 }
 
 function SoftBox({ args, position, radius = 0.15, color = GEAR, rotation }) {
@@ -41,20 +47,16 @@ function AccentBand({ radius, tube, position, rotation, color = AC }) {
 }
 
 function Wheelchair({ torsoW }) {
-  // Seat sits just under the hips (hips are at local y=1.05); wheels span
-  // from just under the seat down to the ground (group's local y=-1.15)
-  // so nothing floats disconnected from the body.
-  const seatY = 0.78;
-  const groundY = -1.15;
-  const wheelR = (seatY - groundY) / 2 - 0.05;
-  const wheelY = (seatY + groundY) / 2;
+  // Wheels span from just under the seat down to the ground so nothing
+  // floats disconnected from the body.
+  const wheelR = (SEAT_Y - GROUND_Y) / 2 - 0.05;
+  const wheelY = (SEAT_Y + GROUND_Y) / 2;
   const wheelX = torsoW / 2 + wheelR * 0.55;
 
   return (
     <group>
-      <SoftBox args={[0.82, 0.16, 0.8]} position={[0, seatY, 0.05]} radius={0.08} color="#3a3a3a" />
-      <SoftBox args={[0.78, 0.9, 0.16]} position={[0, seatY + 0.55, -0.36]} rotation={[-0.18, 0, 0]} radius={0.1} color="#3a3a3a" />
-      <SoftBox args={[0.6, 0.05, 0.28]} position={[0, groundY + 0.55, 0.52]} radius={0.03} color="#3a3a3a" />
+      <SoftBox args={[0.82, 0.16, 0.8]} position={[0, SEAT_Y, 0.05]} radius={0.08} color="#3a3a3a" />
+      <SoftBox args={[0.78, 0.9, 0.16]} position={[0, SEAT_Y + 0.55, -0.36]} rotation={[-0.18, 0, 0]} radius={0.1} color="#3a3a3a" />
 
       {[-1, 1].map((side) => (
         <group key={side}>
@@ -70,7 +72,7 @@ function Wheelchair({ torsoW }) {
             <sphereGeometry args={[0.09, 12, 12]} />
             <meshPhysicalMaterial color="#3a3a3a" roughness={0.4} metalness={0.4} />
           </mesh>
-          <mesh position={[side * (torsoW / 2 + 0.1), groundY + 0.22, 0.5]} rotation={[0, Math.PI / 2, 0]}>
+          <mesh position={[side * (torsoW / 2 + 0.1), GROUND_Y + 0.22, 0.5]} rotation={[0, Math.PI / 2, 0]}>
             <torusGeometry args={[0.14, 0.03, 8, 16]} />
             <meshPhysicalMaterial color="#3a3a3a" roughness={0.4} metalness={0.4} />
           </mesh>
@@ -94,6 +96,48 @@ function Legs({ legR, skinTone }) {
   );
 }
 
+function BentLegs({ legR, skinTone }) {
+  // Seated pose: thigh runs forward (horizontal) from the hip, then the
+  // shin drops straight down from the knee to the footplate - so the
+  // "legs" muscle stat still has something visible to grow in the chair.
+  const thighLen = 0.7;
+  const shinLen = 1.55;
+  const kneeZ = thighLen;
+  const footY = SEAT_Y - shinLen;
+
+  return (
+    <>
+      {[-1, 1].map((side) => (
+        <group key={side}>
+          <Limb radius={legR} length={thighLen} position={[side * 0.27, SEAT_Y, thighLen / 2]} rotation={[Math.PI / 2, 0, 0]} color={skinTone} />
+          <Limb radius={legR * 0.78} length={shinLen} position={[side * 0.27, SEAT_Y - shinLen / 2, kneeZ]} color={skinTone} />
+          <SoftBox args={[0.3, 0.14, 0.44]} position={[side * 0.27, footY + 0.05, kneeZ + 0.12]} radius={0.06} />
+        </group>
+      ))}
+    </>
+  );
+}
+
+function Face({ headY }) {
+  const eyeColor = "#141414";
+  return (
+    <group>
+      <mesh position={[-0.14, headY + 0.03, 0.36]}>
+        <sphereGeometry args={[0.045, 12, 12]} />
+        <meshStandardMaterial color={eyeColor} roughness={0.3} />
+      </mesh>
+      <mesh position={[0.14, headY + 0.03, 0.36]}>
+        <sphereGeometry args={[0.045, 12, 12]} />
+        <meshStandardMaterial color={eyeColor} roughness={0.3} />
+      </mesh>
+      <mesh position={[0, headY - 0.14, 0.38]}>
+        <boxGeometry args={[0.16, 0.03, 0.02]} />
+        <meshStandardMaterial color={eyeColor} roughness={0.3} />
+      </mesh>
+    </group>
+  );
+}
+
 function Figure({ stats, skinTone, bodyType }) {
   const chestG = norm(stats.chest), backG = norm(stats.back), shoulderG = norm(stats.shoulders),
         armG = norm(stats.arms), legG = norm(stats.legs), coreG = norm(stats.core);
@@ -110,8 +154,9 @@ function Figure({ stats, skinTone, bodyType }) {
 
   return (
     <group position={[0, -1.15, 0]}>
-      {/* head + neck */}
+      {/* head + neck + face */}
       <Ball radius={0.4} position={[0, 3.4, 0]} color={skinTone} />
+      <Face headY={3.4} />
       <Skin position={[0, 2.95, 0]} color={skinTone}><cylinderGeometry args={[0.16, 0.19, 0.3, 16]} /></Skin>
 
       {/* torso */}
@@ -153,7 +198,9 @@ function Figure({ stats, skinTone, bodyType }) {
       {/* hips */}
       <SoftBox args={[torsoW * 0.82, 0.48, 0.56]} position={[0, 1.05, 0]} radius={0.16} />
 
-      {seated ? <Wheelchair torsoW={torsoW} /> : <Legs legR={legR} skinTone={skinTone} />}
+      {seated
+        ? <><Wheelchair torsoW={torsoW} /><BentLegs legR={legR} skinTone={skinTone} /></>
+        : <Legs legR={legR} skinTone={skinTone} />}
     </group>
   );
 }
