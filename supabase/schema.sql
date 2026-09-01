@@ -17,8 +17,13 @@ create table if not exists avatar_progress (
   facial_hair text,
   glasses boolean not null default false,
   history jsonb not null default '[]'::jsonb,
+  unlocked_achievements jsonb not null default '[]'::jsonb,
   updated_at timestamptz not null default now()
 );
+
+-- Safe to re-run: adds the column if this script was already run before
+-- unlocked_achievements existed.
+alter table avatar_progress add column if not exists unlocked_achievements jsonb not null default '[]'::jsonb;
 
 alter table avatar_progress enable row level security;
 

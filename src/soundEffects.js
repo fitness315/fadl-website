@@ -35,6 +35,15 @@ export function playLevelUpSound() {
   tone(783.99, now + 0.2, 0.3); // G5
 }
 
+export function playAchievementSound() {
+  const audio = getCtx();
+  if (!audio) return;
+  if (audio.state === "suspended") audio.resume();
+  const now = audio.currentTime;
+  tone(880, now, 0.12, 0.12); // A5
+  tone(1108.73, now + 0.09, 0.2, 0.12); // C#6
+}
+
 export function triggerHaptic() {
   if (navigator.vibrate) navigator.vibrate([40, 30, 60]);
 }

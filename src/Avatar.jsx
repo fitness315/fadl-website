@@ -43,6 +43,23 @@ function SkinSwatch({ tone, active, onClick }) {
   );
 }
 
+function AchievementBadge({ a }) {
+  return (
+    <div
+      title={a.desc}
+      style={{
+        padding: "12px 10px", borderRadius: 6, textAlign: "center",
+        background: a.unlocked ? "#1a1a00" : "#161616",
+        border: `1px solid ${a.unlocked ? AC + "55" : B2}`,
+        opacity: a.unlocked ? 1 : 0.45,
+      }}
+    >
+      <div style={{ fontSize: 26, marginBottom: 6, filter: a.unlocked ? "none" : "grayscale(1)" }}>{a.icon}</div>
+      <div style={{ fontSize: 10, fontWeight: 900, color: a.unlocked ? AC : MU, letterSpacing: "0.03em", lineHeight: 1.3 }}>{a.label}</div>
+    </div>
+  );
+}
+
 function Pill({ label, active, onClick }) {
   return (
     <button
@@ -60,7 +77,7 @@ function Pill({ label, active, onClick }) {
 
 export function AvatarPanel({ avatar }) {
   const {
-    stats, rawStats, totalWorkouts, history, pendingLevelUp, commitLevelUpSnapshot,
+    stats, rawStats, totalWorkouts, history, streaks, achievements, pendingLevelUp, commitLevelUpSnapshot,
     skinTone, bodyType, hairStyle, hairColor, facialHair, glasses,
     setSkinTone, setBodyType, setHairStyle, setHairColor, setFacialHair, setGlasses,
   } = avatar;
@@ -168,6 +185,9 @@ export function AvatarPanel({ avatar }) {
         <div style={{ marginTop: 12, display: "flex", justifyContent: "center", gap: 10, flexWrap: "wrap" }}>
           <div style={{ padding: "6px 14px", background: "#1a1a00", border: `1px solid ${AC}44`, borderRadius: 4, fontSize: 12, color: AC, fontWeight: 900 }}>LEVEL {level}</div>
           <div style={{ padding: "6px 14px", background: BG, border: `1px solid ${B2}`, borderRadius: 4, fontSize: 12, color: MU, fontWeight: 700 }}>{totalWorkouts} WORKOUTS LOGGED</div>
+          {streaks.current > 0 && (
+            <div style={{ padding: "6px 14px", background: "#331a00", border: "1px solid #ff884455", borderRadius: 4, fontSize: 12, color: "#ffaa55", fontWeight: 900 }}>🔥 {streaks.current} WEEK STREAK</div>
+          )}
         </div>
         <div style={{ marginTop: 10, height: 6, background: "#161616", borderRadius: 3, overflow: "hidden", maxWidth: 200, marginLeft: "auto", marginRight: "auto" }}>
           <div style={{ width: `${(xp / 4) * 100}%`, height: "100%", background: AC, transition: "width 0.5s ease" }} />
@@ -183,13 +203,22 @@ export function AvatarPanel({ avatar }) {
         </button>
       </div>
 
-      <div style={{ padding: "18px", background: CA, borderRadius: 6, border: `1px solid ${B2}`, marginBottom: history.length ? 16 : 0 }}>
+      <div style={{ padding: "18px", background: CA, borderRadius: 6, border: `1px solid ${B2}`, marginBottom: 16 }}>
         <StatBar label="CHEST" value={stats.chest} raw={rawStats.chest} />
         <StatBar label="BACK" value={stats.back} raw={rawStats.back} />
         <StatBar label="SHOULDERS" value={stats.shoulders} raw={rawStats.shoulders} />
         <StatBar label="ARMS" value={stats.arms} raw={rawStats.arms} />
         <StatBar label="LEGS" value={stats.legs} raw={rawStats.legs} />
         <StatBar label="CORE" value={stats.core} raw={rawStats.core} />
+      </div>
+
+      <div style={{ padding: "18px", background: CA, borderRadius: 6, border: `1px solid ${B2}`, marginBottom: history.length ? 16 : 0 }}>
+        <div style={{ fontSize: 11, fontWeight: 700, color: MU, letterSpacing: "0.15em", textTransform: "uppercase", marginBottom: 12 }}>
+          Achievements ({achievements.filter((a) => a.unlocked).length}/{achievements.length})
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(90px, 1fr))", gap: 10 }}>
+          {achievements.map((a) => <AchievementBadge key={a.id} a={a} />)}
+        </div>
       </div>
 
       {history.length > 0 && (
