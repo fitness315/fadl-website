@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useAvatarState } from "./useAvatarState";
 import { AvatarPanel } from "./Avatar";
 import { SUPABASE_URL, sbHeaders } from "./supabaseClient";
+import { track } from "./analytics";
 
 // ── CONFIG ────────────────────────────────────────────────────
 const STRIPE_KEY    = "pk_live_51TVHmMHDFLyj04Bgdv5g36QLUXQqYcEdZoNfQpFjoSfXtH0U4b3VemVnK4Q1gXcz8zKcg8PqfrQKO2klURiGgoek00SyLbEmNT";
@@ -229,13 +230,15 @@ const phases = [
 
 // ── SCREENS ───────────────────────────────────────────────────
 function Landing({ onSignup, onLogin, onTrial }) {
+  useEffect(() => { track("landing_view"); }, []);
+
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
       <nav style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "18px 24px", borderBottom: `1px solid ${BO}`, position: "sticky", top: 0, background: "rgba(8,8,8,0.97)", backdropFilter: "blur(12px)", zIndex: 100 }}>
         <Logo />
         <div style={{ display: "flex", gap: 10 }}>
-          <button onClick={onLogin} style={{ padding: "10px 20px", background: "transparent", color: TX, border: `1px solid ${B2}`, borderRadius: 4, cursor: "pointer", fontSize: 13, fontWeight: 700, fontFamily: "inherit" }}>Log In</button>
-          <button onClick={onSignup} style={{ padding: "10px 20px", background: AC, color: BG, border: "none", borderRadius: 4, cursor: "pointer", fontSize: 13, fontWeight: 900, fontFamily: "inherit" }}>Get Started</button>
+          <button onClick={() => { track("cta_click", { target: "login" }); onLogin(); }} style={{ padding: "10px 20px", background: "transparent", color: TX, border: `1px solid ${B2}`, borderRadius: 4, cursor: "pointer", fontSize: 13, fontWeight: 700, fontFamily: "inherit" }}>Log In</button>
+          <button onClick={() => { track("cta_click", { target: "get_started" }); onSignup(); }} style={{ padding: "10px 20px", background: AC, color: BG, border: "none", borderRadius: 4, cursor: "pointer", fontSize: 13, fontWeight: 900, fontFamily: "inherit" }}>Get Started</button>
         </div>
       </nav>
 
@@ -259,11 +262,11 @@ function Landing({ onSignup, onLogin, onTrial }) {
         </p>
 
         <div style={{ width: "100%", maxWidth: 360, display: "flex", flexDirection: "column", gap: 10 }}>
-          <Btn onClick={onSignup}>Get Started — £9.99</Btn>
-          <button onClick={onTrial} style={{ width: "100%", padding: "16px", background: "transparent", color: AC, fontSize: 15, fontWeight: 900, letterSpacing: "0.06em", textTransform: "uppercase", border: `1px solid ${AC}55`, borderRadius: 4, cursor: "pointer", fontFamily: "inherit" }}>
+          <Btn onClick={() => { track("cta_click", { target: "get_started" }); onSignup(); }}>Get Started — £9.99</Btn>
+          <button onClick={() => { track("cta_click", { target: "trial" }); onTrial(); }} style={{ width: "100%", padding: "16px", background: "transparent", color: AC, fontSize: 15, fontWeight: 900, letterSpacing: "0.06em", textTransform: "uppercase", border: `1px solid ${AC}55`, borderRadius: 4, cursor: "pointer", fontFamily: "inherit" }}>
             🧍 Try The Avatar Free
           </button>
-          <GhostBtn onClick={onLogin}>Already have an account? Log in</GhostBtn>
+          <GhostBtn onClick={() => { track("cta_click", { target: "login" }); onLogin(); }}>Already have an account? Log in</GhostBtn>
         </div>
         <div style={{ fontSize: 11, color: MU, marginTop: 12 }}>No card needed — try one free workout, build your avatar, see it grow.</div>
 
@@ -305,6 +308,7 @@ function AuthForm({ mode, onSuccess, onSwitch, onBack }) {
         const res = await supa.signUp(email, pass, name);
         if (res.error) { setErrors({ email: res.error.message }); setLoading(false); return; }
         if (res.access_token) {
+          track("signup_complete", { userId: res.user.id });
           const paid = await supa.getPaid(res.user.id, res.access_token);
           onSuccess({ token: res.access_token, user: res.user, name, paid });
         } else {
@@ -314,6 +318,7 @@ function AuthForm({ mode, onSuccess, onSwitch, onBack }) {
         const res = await supa.signIn(email, pass);
         if (res.error) { setErrors({ email: res.error.message }); setLoading(false); return; }
         const u = await supa.getUser(res.access_token);
+        track("login_complete", { userId: u.id });
         const paid = await supa.getPaid(u.id, res.access_token);
         onSuccess({ token: res.access_token, user: u, name: u.user_metadata?.name || email, paid });
       }
@@ -374,14 +379,18 @@ function PaymentScreen({ session, onPaid }) {
     if (params.get("payment") === "success") {
       (async () => {
         await supa.setPaid(session.user.id, session.token);
+        track("payment_complete", { userId: session.user.id });
         window.history.replaceState({}, "", window.location.pathname);
         onPaid();
       })();
+    } else {
+      track("payment_view", { userId: session.user.id });
     }
   }, []);
 
   const pay = async () => {
     setLoading(true); setErr("");
+    track("payment_start", { userId: session.user.id });
     try {
       await redirectToStripe(session.user.email);
     } catch (e) {
@@ -468,12 +477,20 @@ function Dashboard({ session, name, onLogout, trial, onUpgrade }) {
   const done = isLogged(sessionId);
   const trialUsedUp = trial && totalWorkouts >= 1 && !done;
 
+  useEffect(() => { if (trial) track("trial_start"); }, [trial]);
+
+  const handleLogWorkout = () => {
+    logWorkout(d.label, sessionId);
+    track("workout_logged", { userId: session?.user?.id, trial: !!trial });
+  };
+  const handleUpgradeClick = (source) => { track("upgrade_click", { source }); onUpgrade(); };
+
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
       <nav style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "14px 20px", borderBottom: `1px solid ${BO}`, position: "sticky", top: 0, background: "rgba(8,8,8,0.97)", backdropFilter: "blur(12px)", zIndex: 100 }}>
         <Logo />
         {trial ? (
-          <button onClick={onUpgrade} style={{ background: AC, border: "none", color: BG, fontSize: 11, padding: "8px 16px", borderRadius: 4, cursor: "pointer", fontWeight: 900, letterSpacing: "0.06em" }}>🔒 SIGN UP TO SAVE</button>
+          <button onClick={() => handleUpgradeClick("nav")} style={{ background: AC, border: "none", color: BG, fontSize: 11, padding: "8px 16px", borderRadius: 4, cursor: "pointer", fontWeight: 900, letterSpacing: "0.06em" }}>🔒 SIGN UP TO SAVE</button>
         ) : (
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
             <div style={{ fontSize: 12, color: MU }}>Hi, {name?.split(" ")[0]}</div>
@@ -570,7 +587,7 @@ function Dashboard({ session, name, onLogout, trial, onUpgrade }) {
             ))}
 
             <button
-              onClick={() => (trialUsedUp ? onUpgrade() : logWorkout(d.label, sessionId))}
+              onClick={() => (trialUsedUp ? handleUpgradeClick("mark_complete") : handleLogWorkout())}
               disabled={done}
               style={{ width: "100%", marginTop: 16, padding: "16px", background: done ? "#1a3300" : AC, color: done ? "#7fff00" : BG, fontSize: 14, fontWeight: 900, letterSpacing: "0.08em", textTransform: "uppercase", border: done ? "1px solid #2a5500" : "none", borderRadius: 4, cursor: done ? "default" : "pointer", fontFamily: "inherit" }}>
               {done ? "✓ Logged — Avatar Growing" : trialUsedUp ? "🔒 Sign Up to Keep Training →" : "Mark Workout Complete →"}
@@ -584,7 +601,7 @@ function Dashboard({ session, name, onLogout, trial, onUpgrade }) {
 
         {tab === "avatar" && <AvatarPanel avatar={avatar} />}
 
-        {tab === "nutrition" && trial && <LockedTab title="The nutrition guide" onUpgrade={onUpgrade} />}
+        {tab === "nutrition" && trial && <LockedTab title="The nutrition guide" onUpgrade={() => handleUpgradeClick("locked_tab")} />}
         {tab === "nutrition" && !trial && (
           <div>
             <h2 style={{ fontFamily: "Arial Black, Arial", fontSize: 28, fontWeight: 900, marginBottom: 6 }}>Nutrition Guide</h2>
@@ -608,7 +625,7 @@ function Dashboard({ session, name, onLogout, trial, onUpgrade }) {
           </div>
         )}
 
-        {tab === "tracker" && trial && <LockedTab title="Progress tracking" onUpgrade={onUpgrade} />}
+        {tab === "tracker" && trial && <LockedTab title="Progress tracking" onUpgrade={() => handleUpgradeClick("locked_tab")} />}
         {tab === "tracker" && !trial && (
           <div>
             <h2 style={{ fontFamily: "Arial Black, Arial", fontSize: 28, fontWeight: 900, marginBottom: 6 }}>Progress Tracker</h2>

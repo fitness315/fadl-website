@@ -38,3 +38,34 @@ create policy "Users can insert own avatar progress"
 create policy "Users can update own avatar progress"
   on avatar_progress for update
   using (auth.uid() = user_id);
+
+-- ── ANALYTICS ─────────────────────────────────────────────────
+-- Write-only funnel log: landing views, CTA clicks, trial usage,
+-- signup/payment completion, workout logging. Anyone can INSERT
+-- (that's how client-side analytics works - the anon key is public by
+-- design) but nobody can SELECT through the API, so the data is only
+-- readable from the Supabase dashboard/SQL editor, not scrapable by
+-- visitors.
+create table if not exists analytics_events (
+  id uuid primary key default gen_random_uuid(),
+  event text not null,
+  session_id text not null,
+  user_id uuid,
+  meta jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now()
+);
+
+alter table analytics_events enable row level security;
+
+create policy "Anyone can log an event"
+  on analytics_events for insert
+  to anon, authenticated
+  with check (true);
+
+-- Handy queries once you have data:
+--   Funnel counts:
+--     select event, count(*) from analytics_events group by event order by count(*) desc;
+--   Trial -> paid conversion rate:
+--     select
+--       count(*) filter (where event = 'cta_click' and meta->>'target' = 'trial') as trial_starts,
+--       count(*) filter (where event = 'payment_complete') as conversions;
