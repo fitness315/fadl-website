@@ -192,17 +192,33 @@ async function pushCloud(userId, token, data) {
 
 const levelFor = (total) => 1 + Math.floor(total / 4);
 
+// A brand-new account with untouched storage adopts any free-trial
+// progress sitting in the guest bucket on this device/browser, so
+// "sign up to save your avatar" is actually true rather than a reset.
+function migrateGuestProgress(userId) {
+  if (!userId) return loadLocal(userId);
+  const own = loadLocal(userId);
+  const isUntouched = own.totalWorkouts === 0 && own.loggedSessions.length === 0;
+  if (!isUntouched) return own;
+  const guest = loadLocal(null);
+  if (guest.totalWorkouts === 0) return own;
+  const migrated = { ...guest, updatedAt: new Date().toISOString() };
+  saveLocal(userId, migrated);
+  try { localStorage.removeItem(storageKey(null)); } catch {}
+  return migrated;
+}
+
 export function useAvatarState(session) {
   const userId = session?.user?.id;
   const token = session?.token;
-  const [data, setData] = useState(() => loadLocal(userId));
+  const [data, setData] = useState(() => migrateGuestProgress(userId));
   const [pendingLevelUp, setPendingLevelUp] = useState(null);
   const syncTimer = useRef(null);
 
   // Initial load for this user + reconcile against the cloud copy (the
   // more recently updated of the two wins).
   useEffect(() => {
-    const local = loadLocal(userId);
+    const local = migrateGuestProgress(userId);
     setData(local);
     if (!userId || !token) return;
     (async () => {

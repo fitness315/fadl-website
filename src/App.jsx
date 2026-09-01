@@ -228,7 +228,7 @@ const phases = [
 ];
 
 // ── SCREENS ───────────────────────────────────────────────────
-function Landing({ onSignup, onLogin }) {
+function Landing({ onSignup, onLogin, onTrial }) {
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
       <nav style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "18px 24px", borderBottom: `1px solid ${BO}`, position: "sticky", top: 0, background: "rgba(8,8,8,0.97)", backdropFilter: "blur(12px)", zIndex: 100 }}>
@@ -260,8 +260,12 @@ function Landing({ onSignup, onLogin }) {
 
         <div style={{ width: "100%", maxWidth: 360, display: "flex", flexDirection: "column", gap: 10 }}>
           <Btn onClick={onSignup}>Get Started — £9.99</Btn>
+          <button onClick={onTrial} style={{ width: "100%", padding: "16px", background: "transparent", color: AC, fontSize: 15, fontWeight: 900, letterSpacing: "0.06em", textTransform: "uppercase", border: `1px solid ${AC}55`, borderRadius: 4, cursor: "pointer", fontFamily: "inherit" }}>
+            🧍 Try The Avatar Free
+          </button>
           <GhostBtn onClick={onLogin}>Already have an account? Log in</GhostBtn>
         </div>
+        <div style={{ fontSize: 11, color: MU, marginTop: 12 }}>No card needed — try one free workout, build your avatar, see it grow.</div>
 
         <div style={{ display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center", marginTop: 40 }}>
           {["12 Weeks", "3 Phases", "4 Days/Week", "Nutrition Guide", "Progress Tracker", "Grows With You", "Lifetime Access"].map(f => (
@@ -436,27 +440,53 @@ function PaymentScreen({ session, onPaid }) {
   );
 }
 
-function Dashboard({ session, name, onLogout }) {
+function LockedTab({ title, onUpgrade }) {
+  return (
+    <div style={{ padding: "60px 24px", textAlign: "center" }}>
+      <div style={{ fontSize: 40, marginBottom: 16 }}>🔒</div>
+      <div style={{ fontFamily: "Arial Black, Arial", fontSize: 22, fontWeight: 900, marginBottom: 10 }}>{title} is part of the full plan</div>
+      <p style={{ fontSize: 14, color: MU, maxWidth: 380, margin: "0 auto 24px", lineHeight: 1.6 }}>
+        You're on the free trial — this unlocks along with all 12 weeks, all 4 training days, and cloud-saved progress.
+      </p>
+      <button onClick={onUpgrade} style={{ padding: "14px 28px", background: AC, color: BG, border: "none", borderRadius: 4, fontSize: 14, fontWeight: 900, letterSpacing: "0.08em", textTransform: "uppercase", cursor: "pointer", fontFamily: "inherit" }}>
+        Unlock Full Plan — £9.99
+      </button>
+    </div>
+  );
+}
+
+function Dashboard({ session, name, onLogout, trial, onUpgrade }) {
   const [phase, setPhase] = useState(0);
   const [day, setDay]   = useState(0);
   const [tab, setTab]   = useState("plan");
-  const p = phases[phase];
-  const d = p.days[day];
+  const p = phases[trial ? 0 : phase];
+  const d = p.days[trial ? 0 : day];
 
-  const avatar = useAvatarState(session);
-  const { isLogged, logWorkout } = avatar;
-  const sessionId = `${new Date().toISOString().slice(0, 10)}_P${phase}_${d.label}`;
+  const avatar = useAvatarState(trial ? null : session);
+  const { isLogged, logWorkout, totalWorkouts } = avatar;
+  const sessionId = `${new Date().toISOString().slice(0, 10)}_P${trial ? 0 : phase}_${d.label}`;
   const done = isLogged(sessionId);
+  const trialUsedUp = trial && totalWorkouts >= 1 && !done;
 
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
       <nav style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "14px 20px", borderBottom: `1px solid ${BO}`, position: "sticky", top: 0, background: "rgba(8,8,8,0.97)", backdropFilter: "blur(12px)", zIndex: 100 }}>
         <Logo />
-        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-          <div style={{ fontSize: 12, color: MU }}>Hi, {name?.split(" ")[0]}</div>
-          <button onClick={onLogout} style={{ background: "none", border: `1px solid ${B2}`, color: MU, fontSize: 11, padding: "6px 14px", borderRadius: 4, cursor: "pointer", fontWeight: 700, letterSpacing: "0.1em" }}>LOG OUT</button>
-        </div>
+        {trial ? (
+          <button onClick={onUpgrade} style={{ background: AC, border: "none", color: BG, fontSize: 11, padding: "8px 16px", borderRadius: 4, cursor: "pointer", fontWeight: 900, letterSpacing: "0.06em" }}>🔒 SIGN UP TO SAVE</button>
+        ) : (
+          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+            <div style={{ fontSize: 12, color: MU }}>Hi, {name?.split(" ")[0]}</div>
+            <button onClick={onLogout} style={{ background: "none", border: `1px solid ${B2}`, color: MU, fontSize: 11, padding: "6px 14px", borderRadius: 4, cursor: "pointer", fontWeight: 700, letterSpacing: "0.1em" }}>LOG OUT</button>
+          </div>
+        )}
       </nav>
+
+      {trial && (
+        <div style={{ background: "#1a1a00", borderBottom: `1px solid ${AC}33`, padding: "10px 20px", textAlign: "center", fontSize: 12, color: AC, fontWeight: 700 }}>
+          FREE TRIAL — progress is saved to this browser only until you sign up
+        </div>
+      )}
 
       {/* Tabs */}
       <div style={{ display: "flex", borderBottom: `1px solid ${BO}`, padding: "0 20px", overflowX: "auto" }}>
@@ -469,41 +499,49 @@ function Dashboard({ session, name, onLogout }) {
 
         {tab === "plan" && (
           <>
-            {/* Phase selector */}
-            <div style={{ marginBottom: 20 }}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: MU, letterSpacing: "0.15em", textTransform: "uppercase", marginBottom: 10 }}>Select Phase</div>
-              <div style={{ display: "flex", gap: 8 }}>
-                {phases.map((ph, i) => (
-                  <button key={i} onClick={() => { setPhase(i); setDay(0); }} style={{ flex: 1, padding: "12px 6px", borderRadius: 4, cursor: "pointer", background: phase === i ? AC : CA, color: phase === i ? BG : MU, border: `1px solid ${phase === i ? AC : B2}`, fontSize: 11, fontWeight: 900, textAlign: "center", fontFamily: "inherit" }}>
-                    <div>{ph.phase}</div>
-                    <div style={{ fontSize: 10, marginTop: 2, opacity: 0.7 }}>{ph.weeks}</div>
-                  </button>
-                ))}
+            {trial ? (
+              <div style={{ padding: "14px 16px", background: "#1a1a00", borderRadius: 6, border: `1px solid ${AC}44`, marginBottom: 20, fontSize: 12, color: AC, fontWeight: 700, letterSpacing: "0.06em" }}>
+                🎁 FREE SAMPLE DAY — the other 3 days a week, 3 phases, and 12 weeks unlock when you sign up
               </div>
-            </div>
-
-            {/* Phase info */}
-            <div style={{ padding: "18px", background: CA, borderRadius: 6, border: `1px solid ${B2}`, borderLeft: `3px solid ${AC}`, marginBottom: 20 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8, flexWrap: "wrap", gap: 8 }}>
-                <div>
-                  <div style={{ fontFamily: "Arial Black, Arial", fontSize: 20, fontWeight: 900 }}>{p.title}</div>
-                  <div style={{ fontSize: 12, color: AC, letterSpacing: "0.1em", marginTop: 2 }}>{p.weeks}</div>
+            ) : (
+              <>
+                {/* Phase selector */}
+                <div style={{ marginBottom: 20 }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: MU, letterSpacing: "0.15em", textTransform: "uppercase", marginBottom: 10 }}>Select Phase</div>
+                  <div style={{ display: "flex", gap: 8 }}>
+                    {phases.map((ph, i) => (
+                      <button key={i} onClick={() => { setPhase(i); setDay(0); }} style={{ flex: 1, padding: "12px 6px", borderRadius: 4, cursor: "pointer", background: phase === i ? AC : CA, color: phase === i ? BG : MU, border: `1px solid ${phase === i ? AC : B2}`, fontSize: 11, fontWeight: 900, textAlign: "center", fontFamily: "inherit" }}>
+                        <div>{ph.phase}</div>
+                        <div style={{ fontSize: 10, marginTop: 2, opacity: 0.7 }}>{ph.weeks}</div>
+                      </button>
+                    ))}
+                  </div>
                 </div>
-                <div style={{ display: "flex", gap: 8 }}>
-                  {[`${p.sets} SETS`, `RPE ${p.rpe}`].map(badge => (
-                    <div key={badge} style={{ padding: "6px 12px", background: "#1a1a00", border: `1px solid ${AC}44`, borderRadius: 4, fontSize: 11, color: AC, fontWeight: 700 }}>{badge}</div>
+
+                {/* Phase info */}
+                <div style={{ padding: "18px", background: CA, borderRadius: 6, border: `1px solid ${B2}`, borderLeft: `3px solid ${AC}`, marginBottom: 20 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8, flexWrap: "wrap", gap: 8 }}>
+                    <div>
+                      <div style={{ fontFamily: "Arial Black, Arial", fontSize: 20, fontWeight: 900 }}>{p.title}</div>
+                      <div style={{ fontSize: 12, color: AC, letterSpacing: "0.1em", marginTop: 2 }}>{p.weeks}</div>
+                    </div>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      {[`${p.sets} SETS`, `RPE ${p.rpe}`].map(badge => (
+                        <div key={badge} style={{ padding: "6px 12px", background: "#1a1a00", border: `1px solid ${AC}44`, borderRadius: 4, fontSize: 11, color: AC, fontWeight: 700 }}>{badge}</div>
+                      ))}
+                    </div>
+                  </div>
+                  <div style={{ fontSize: 13, color: MU, lineHeight: 1.6 }}>{p.desc}</div>
+                </div>
+
+                {/* Day selector */}
+                <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
+                  {p.days.map((dd, i) => (
+                    <button key={i} onClick={() => setDay(i)} style={{ flex: 1, padding: "10px 4px", borderRadius: 4, cursor: "pointer", background: day === i ? TX : CA, color: day === i ? BG : MU, border: `1px solid ${day === i ? TX : B2}`, fontSize: 11, fontWeight: 900, fontFamily: "inherit" }}>{dd.label}</button>
                   ))}
                 </div>
-              </div>
-              <div style={{ fontSize: 13, color: MU, lineHeight: 1.6 }}>{p.desc}</div>
-            </div>
-
-            {/* Day selector */}
-            <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
-              {p.days.map((dd, i) => (
-                <button key={i} onClick={() => setDay(i)} style={{ flex: 1, padding: "10px 4px", borderRadius: 4, cursor: "pointer", background: day === i ? TX : CA, color: day === i ? BG : MU, border: `1px solid ${day === i ? TX : B2}`, fontSize: 11, fontWeight: 900, fontFamily: "inherit" }}>{dd.label}</button>
-              ))}
-            </div>
+              </>
+            )}
 
             {/* Day header */}
             <div style={{ padding: "16px", background: CA, borderRadius: "6px 6px 0 0", border: `1px solid ${B2}`, borderBottom: "none", marginBottom: 0 }}>
@@ -532,10 +570,10 @@ function Dashboard({ session, name, onLogout }) {
             ))}
 
             <button
-              onClick={() => logWorkout(d.label, sessionId)}
+              onClick={() => (trialUsedUp ? onUpgrade() : logWorkout(d.label, sessionId))}
               disabled={done}
               style={{ width: "100%", marginTop: 16, padding: "16px", background: done ? "#1a3300" : AC, color: done ? "#7fff00" : BG, fontSize: 14, fontWeight: 900, letterSpacing: "0.08em", textTransform: "uppercase", border: done ? "1px solid #2a5500" : "none", borderRadius: 4, cursor: done ? "default" : "pointer", fontFamily: "inherit" }}>
-              {done ? "✓ Logged — Avatar Growing" : "Mark Workout Complete →"}
+              {done ? "✓ Logged — Avatar Growing" : trialUsedUp ? "🔒 Sign Up to Keep Training →" : "Mark Workout Complete →"}
             </button>
 
             <div style={{ marginTop: 16, padding: "12px 16px", background: "#1a1a00", borderRadius: 4, border: `1px solid ${AC}33`, fontSize: 13, color: MU, lineHeight: 1.6 }}>
@@ -546,7 +584,8 @@ function Dashboard({ session, name, onLogout }) {
 
         {tab === "avatar" && <AvatarPanel avatar={avatar} />}
 
-        {tab === "nutrition" && (
+        {tab === "nutrition" && trial && <LockedTab title="The nutrition guide" onUpgrade={onUpgrade} />}
+        {tab === "nutrition" && !trial && (
           <div>
             <h2 style={{ fontFamily: "Arial Black, Arial", fontSize: 28, fontWeight: 900, marginBottom: 6 }}>Nutrition Guide</h2>
             <p style={{ fontSize: 14, color: MU, marginBottom: 28, lineHeight: 1.6 }}>Your training is only as good as what you eat. These are the non-negotiables.</p>
@@ -569,7 +608,8 @@ function Dashboard({ session, name, onLogout }) {
           </div>
         )}
 
-        {tab === "tracker" && (
+        {tab === "tracker" && trial && <LockedTab title="Progress tracking" onUpgrade={onUpgrade} />}
+        {tab === "tracker" && !trial && (
           <div>
             <h2 style={{ fontFamily: "Arial Black, Arial", fontSize: 28, fontWeight: 900, marginBottom: 6 }}>Progress Tracker</h2>
             <p style={{ fontSize: 14, color: MU, marginBottom: 28 }}>Measure every 4 weeks. Progress that isn't tracked isn't progress.</p>
@@ -651,7 +691,8 @@ export default function App() {
     <div style={{ background: BG, color: TX, minHeight: "100vh", fontFamily: "'Helvetica Neue', Arial, sans-serif" }}>
       <style>{`* { box-sizing: border-box; margin: 0; padding: 0; } input:focus { border-color: #F0FF00 !important; } button { transition: opacity 0.15s, transform 0.15s; } button:active { opacity: 0.85; transform: scale(0.98); } ::-webkit-scrollbar { width: 5px; } ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }`}</style>
 
-      {screen === "landing"   && <Landing onSignup={() => setScreen("signup")} onLogin={() => setScreen("login")} />}
+      {screen === "landing"   && <Landing onSignup={() => setScreen("signup")} onLogin={() => setScreen("login")} onTrial={() => setScreen("trial")} />}
+      {screen === "trial"     && <Dashboard trial onUpgrade={() => setScreen("signup")} />}
       {screen === "signup"    && <AuthForm mode="signup" onSuccess={handleAuth} onSwitch={() => setScreen("login")} onBack={() => setScreen("landing")} />}
       {screen === "login"     && <AuthForm mode="login"  onSuccess={handleAuth} onSwitch={() => setScreen("signup")} onBack={() => setScreen("landing")} />}
       {screen === "payment"   && session && <PaymentScreen session={session} onPaid={handlePaid} />}
