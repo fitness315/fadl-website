@@ -256,10 +256,10 @@ function Figure({ stats, skinTone, bodyType, hairStyle, hairColor, facialHair, g
   );
 }
 
-export default function Avatar3D({ stats, skinTone, bodyType, hairStyle, hairColor, facialHair, glasses }) {
+export default function Avatar3D({ stats, skinTone, bodyType, hairStyle, hairColor, facialHair, glasses, onCanvasReady }) {
   return (
     <div style={{ width: "100%", height: 380, background: "#050505", borderRadius: 8, overflow: "hidden", touchAction: "none" }}>
-      <Canvas shadows camera={{ position: [0, 0.5, 11.3], fov: 35 }}>
+      <Canvas shadows camera={{ position: [0, 0.5, 11.3], fov: 35 }} onCreated={(state) => onCanvasReady?.(state.gl.domElement)}>
         <ambientLight intensity={0.9} />
         <directionalLight position={[3, 6, 4]} intensity={1.8} castShadow />
         <directionalLight position={[-3, 3, -2]} intensity={0.6} />

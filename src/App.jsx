@@ -1,53 +1,46 @@
 import { useState, useEffect } from "react";
-import { useWorkoutLog } from "./useWorkoutLog";
+import { useAvatarState } from "./useAvatarState";
 import { AvatarPanel } from "./Avatar";
+import { SUPABASE_URL, sbHeaders } from "./supabaseClient";
 
 // ── CONFIG ────────────────────────────────────────────────────
-const SUPABASE_URL  = "https://nrtovlmelrwvezwhkdoh.supabase.co";
-const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ydG92bG1lbHJ3dmV6d2hrZG9oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNDU5NzEsImV4cCI6MjA5MzkyMTk3MX0.NpqNxYAdNZbI0L4EhluXnyAmUjlP5YECUZaK-2MQGvQ";
 const STRIPE_KEY    = "pk_live_51TVHmMHDFLyj04Bgdv5g36QLUXQqYcEdZoNfQpFjoSfXtH0U4b3VemVnK4Q1gXcz8zKcg8PqfrQKO2klURiGgoek00SyLbEmNT";
 const STRIPE_PRICE  = "price_1TVHxvHDFLyj04Bg8iHxhgW1";
 
 // ── SUPABASE ──────────────────────────────────────────────────
-const H = (token) => ({
-  "apikey": SUPABASE_ANON,
-  "Authorization": `Bearer ${token || SUPABASE_ANON}`,
-  "Content-Type": "application/json",
-});
-
 const supa = {
   async signUp(email, password, name) {
     const r = await fetch(`${SUPABASE_URL}/auth/v1/signup`, {
-      method: "POST", headers: H(),
+      method: "POST", headers: sbHeaders(),
       body: JSON.stringify({ email, password, data: { name } }),
     });
     return r.json();
   },
   async signIn(email, password) {
     const r = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
-      method: "POST", headers: H(),
+      method: "POST", headers: sbHeaders(),
       body: JSON.stringify({ email, password }),
     });
     return r.json();
   },
   async signOut(token) {
     await fetch(`${SUPABASE_URL}/auth/v1/logout`, {
-      method: "POST", headers: H(token),
+      method: "POST", headers: sbHeaders(token),
     });
   },
   async getUser(token) {
-    const r = await fetch(`${SUPABASE_URL}/auth/v1/user`, { headers: H(token) });
+    const r = await fetch(`${SUPABASE_URL}/auth/v1/user`, { headers: sbHeaders(token) });
     return r.json();
   },
   async getPaid(userId, token) {
-    const r = await fetch(`${SUPABASE_URL}/rest/v1/purchases?user_id=eq.${userId}&select=*`, { headers: H(token) });
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/purchases?user_id=eq.${userId}&select=*`, { headers: sbHeaders(token) });
     const d = await r.json();
     return Array.isArray(d) && d.length > 0;
   },
   async setPaid(userId, token) {
     await fetch(`${SUPABASE_URL}/rest/v1/purchases`, {
       method: "POST",
-      headers: { ...H(token), "Prefer": "return=minimal" },
+      headers: { ...sbHeaders(token), "Prefer": "return=minimal" },
       body: JSON.stringify({ user_id: userId, product: "12_week_plan", purchased_at: new Date().toISOString() }),
     });
   },
@@ -450,7 +443,8 @@ function Dashboard({ session, name, onLogout }) {
   const p = phases[phase];
   const d = p.days[day];
 
-  const { stats, totalWorkouts, isLogged, logWorkout } = useWorkoutLog(session?.user?.id);
+  const avatar = useAvatarState(session);
+  const { isLogged, logWorkout } = avatar;
   const sessionId = `${new Date().toISOString().slice(0, 10)}_P${phase}_${d.label}`;
   const done = isLogged(sessionId);
 
@@ -550,7 +544,7 @@ function Dashboard({ session, name, onLogout }) {
           </>
         )}
 
-        {tab === "avatar" && <AvatarPanel stats={stats} totalWorkouts={totalWorkouts} userId={session?.user?.id} />}
+        {tab === "avatar" && <AvatarPanel avatar={avatar} />}
 
         {tab === "nutrition" && (
           <div>
