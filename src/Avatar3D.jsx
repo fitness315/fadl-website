@@ -55,7 +55,7 @@ function Wheelchair({ torsoW }) {
 
   return (
     <group>
-      <SoftBox args={[0.82, 0.16, 0.8]} position={[0, SEAT_Y, 0.05]} radius={0.08} color="#3a3a3a" />
+      <SoftBox args={[0.82, 0.14, 0.8]} position={[0, SEAT_Y, 0.05]} radius={0.03} color="#3a3a3a" />
       <SoftBox args={[0.78, 0.9, 0.16]} position={[0, SEAT_Y + 0.55, -0.36]} rotation={[-0.18, 0, 0]} radius={0.1} color="#3a3a3a" />
 
       {[-1, 1].map((side) => (
@@ -97,28 +97,39 @@ function Legs({ legR, skinTone }) {
 }
 
 function BentLegs({ legR, skinTone }) {
-  // Seated pose: thigh runs forward (horizontal) from the hip, then the
-  // shin drops straight down from the knee to the footplate - so the
-  // "legs" muscle stat still has something visible to grow in the chair.
-  const thighLen = 0.7;
-  const shinLen = 1.55;
-  const kneeZ = thighLen;
-  const footY = SEAT_Y - shinLen;
+  // Seated pose: thigh runs forward and slightly outward from the hip,
+  // then the shin drops down from the knee to the footplate. The thigh's
+  // rear end is tucked back under the (deepened) hip/shorts block so
+  // only its elongated length shows, not a round end-cap facing the
+  // camera - otherwise it reads as a second pair of glutes.
+  const thighLen = 0.72;
+  const shinLen = 1.5;
+  const hipX = 0.26;
+  const kneeX = 0.36;
+  const kneeZ = thighLen * 0.85;
+  const kneeY = SEAT_Y - 0.14;
+  const footY = kneeY - shinLen;
 
   return (
     <>
       {[-1, 1].map((side) => (
         <group key={side}>
-          <Limb radius={legR} length={thighLen} position={[side * 0.27, SEAT_Y, thighLen / 2]} rotation={[Math.PI / 2, 0, 0]} color={skinTone} />
-          <Limb radius={legR * 0.78} length={shinLen} position={[side * 0.27, SEAT_Y - shinLen / 2, kneeZ]} color={skinTone} />
-          <SoftBox args={[0.3, 0.14, 0.44]} position={[side * 0.27, footY + 0.05, kneeZ + 0.12]} radius={0.06} />
+          <Limb
+            radius={legR * 0.9}
+            length={thighLen}
+            position={[side * (hipX + kneeX) / 2, (SEAT_Y + kneeY) / 2, (kneeZ - 0.22) / 2]}
+            rotation={[1.2, 0, side * 0.22]}
+            color={skinTone}
+          />
+          <Limb radius={legR * 0.72} length={shinLen} position={[side * kneeX, kneeY - shinLen / 2, kneeZ]} color={skinTone} />
+          <SoftBox args={[0.28, 0.13, 0.42]} position={[side * kneeX, footY + 0.04, kneeZ + 0.1]} radius={0.06} />
         </group>
       ))}
     </>
   );
 }
 
-function Face({ headY }) {
+function Face({ headY, glasses }) {
   const eyeColor = "#141414";
   return (
     <group>
@@ -134,11 +145,48 @@ function Face({ headY }) {
         <boxGeometry args={[0.16, 0.03, 0.02]} />
         <meshStandardMaterial color={eyeColor} roughness={0.3} />
       </mesh>
+
+      {glasses && (
+        <group>
+          <mesh position={[-0.14, headY + 0.03, 0.375]}>
+            <torusGeometry args={[0.075, 0.016, 8, 20]} />
+            <meshStandardMaterial color="#111111" roughness={0.3} metalness={0.5} />
+          </mesh>
+          <mesh position={[0.14, headY + 0.03, 0.375]}>
+            <torusGeometry args={[0.075, 0.016, 8, 20]} />
+            <meshStandardMaterial color="#111111" roughness={0.3} metalness={0.5} />
+          </mesh>
+          <mesh position={[0, headY + 0.03, 0.375]}>
+            <boxGeometry args={[0.08, 0.014, 0.014]} />
+            <meshStandardMaterial color="#111111" roughness={0.3} metalness={0.5} />
+          </mesh>
+        </group>
+      )}
     </group>
   );
 }
 
-function Figure({ stats, skinTone, bodyType }) {
+function Hair({ headY, style, color }) {
+  if (style === "none") return null;
+  if (style === "mohawk") {
+    return <SoftBox args={[0.08, 0.24, 0.34]} position={[0, headY + 0.4, -0.02]} radius={0.02} color={color} />;
+  }
+  if (style === "long") {
+    return (
+      <>
+        <Ball radius={0.4} position={[0, headY + 0.1, -0.08]} scale={[1, 0.65, 1]} color={color} />
+        <Limb radius={0.09} length={0.5} position={[0, headY - 0.32, -0.36]} rotation={[0.35, 0, 0]} color={color} />
+      </>
+    );
+  }
+  return <Ball radius={0.4} position={[0, headY + 0.1, -0.08]} scale={[1, 0.65, 1]} color={color} />;
+}
+
+function Beard({ headY, color }) {
+  return <SoftBox args={[0.26, 0.16, 0.2]} position={[0, headY - 0.16, 0.3]} radius={0.06} color={color} />;
+}
+
+function Figure({ stats, skinTone, bodyType, hairStyle, hairColor, facialHair, glasses }) {
   const chestG = norm(stats.chest), backG = norm(stats.back), shoulderG = norm(stats.shoulders),
         armG = norm(stats.arms), legG = norm(stats.legs), coreG = norm(stats.core);
 
@@ -156,7 +204,9 @@ function Figure({ stats, skinTone, bodyType }) {
     <group position={[0, -1.15, 0]}>
       {/* head + neck + face */}
       <Ball radius={0.4} position={[0, 3.4, 0]} color={skinTone} />
-      <Face headY={3.4} />
+      <Face headY={3.4} glasses={glasses} />
+      <Hair headY={3.4} style={hairStyle} color={hairColor} />
+      {facialHair === "beard" && <Beard headY={3.4} color={hairColor} />}
       <Skin position={[0, 2.95, 0]} color={skinTone}><cylinderGeometry args={[0.16, 0.19, 0.3, 16]} /></Skin>
 
       {/* torso */}
@@ -195,8 +245,9 @@ function Figure({ stats, skinTone, bodyType }) {
       {/* waist belt */}
       <AccentBand radius={torsoW * 0.46} tube={0.04} position={[0, 1.32, 0]} rotation={[Math.PI / 2, 0, 0]} />
 
-      {/* hips */}
-      <SoftBox args={[torsoW * 0.82, 0.48, 0.56]} position={[0, 1.05, 0]} radius={0.16} />
+      {/* hips / shorts - deep enough to cover where the thighs attach,
+          seated or standing, so no bare "joint" shows through */}
+      <SoftBox args={[torsoW * 0.82, 0.48, seated ? 0.85 : 0.56]} position={[0, 1.05, seated ? 0.13 : 0]} radius={0.09} />
 
       {seated
         ? <><Wheelchair torsoW={torsoW} /><BentLegs legR={legR} skinTone={skinTone} /></>
@@ -205,7 +256,7 @@ function Figure({ stats, skinTone, bodyType }) {
   );
 }
 
-export default function Avatar3D({ stats, skinTone, bodyType }) {
+export default function Avatar3D({ stats, skinTone, bodyType, hairStyle, hairColor, facialHair, glasses }) {
   return (
     <div style={{ width: "100%", height: 380, background: "#050505", borderRadius: 8, overflow: "hidden", touchAction: "none" }}>
       <Canvas shadows camera={{ position: [0, 0.5, 11.3], fov: 35 }}>
@@ -213,7 +264,7 @@ export default function Avatar3D({ stats, skinTone, bodyType }) {
         <directionalLight position={[3, 6, 4]} intensity={1.8} castShadow />
         <directionalLight position={[-3, 3, -2]} intensity={0.6} />
         <pointLight position={[-4, 2, -3]} intensity={0.8} color={AC} />
-        <Figure stats={stats} skinTone={skinTone} bodyType={bodyType} />
+        <Figure stats={stats} skinTone={skinTone} bodyType={bodyType} hairStyle={hairStyle} hairColor={hairColor} facialHair={facialHair} glasses={glasses} />
         <ContactShadows position={[0, -2.3, 0]} opacity={0.5} scale={8} blur={2.2} far={2} />
         <OrbitControls enablePan={false} minDistance={5} maxDistance={16} autoRotate autoRotateSpeed={2.4} target={[0, 0.15, 0]} />
       </Canvas>
