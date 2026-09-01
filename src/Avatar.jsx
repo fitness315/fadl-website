@@ -1,4 +1,5 @@
 import Avatar3D from "./Avatar3D";
+import { useAvatarPrefs, SKIN_TONES } from "./useAvatarPrefs";
 
 const BG = "#080808", AC = "#F0FF00", CA = "#111", MU = "#666", B2 = "#2a2a2a";
 
@@ -21,9 +22,39 @@ function StatBar({ label, value }) {
   );
 }
 
-export function AvatarPanel({ stats, totalWorkouts }) {
+function SkinSwatch({ tone, active, onClick }) {
+  return (
+    <button
+      onClick={onClick}
+      title={tone.name}
+      style={{
+        width: 30, height: 30, borderRadius: "50%", background: tone.hex, cursor: "pointer",
+        border: active ? `3px solid ${AC}` : `2px solid ${B2}`,
+        boxShadow: active ? `0 0 0 2px ${BG}` : "none", padding: 0,
+      }}
+    />
+  );
+}
+
+function BodyTypeButton({ label, active, onClick }) {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        flex: 1, padding: "10px 8px", borderRadius: 4, cursor: "pointer", fontSize: 12, fontWeight: 900,
+        letterSpacing: "0.04em", fontFamily: "inherit",
+        background: active ? AC : CA, color: active ? BG : MU, border: `1px solid ${active ? AC : B2}`,
+      }}
+    >
+      {label}
+    </button>
+  );
+}
+
+export function AvatarPanel({ stats, totalWorkouts, userId }) {
   const level = 1 + Math.floor(totalWorkouts / 4);
   const xp = totalWorkouts % 4;
+  const { skinTone, bodyType, setSkinTone, setBodyType } = useAvatarPrefs(userId);
 
   return (
     <div>
@@ -32,8 +63,22 @@ export function AvatarPanel({ stats, totalWorkouts }) {
         Every workout you log grows the muscle group you trained. Miss a body part and it lags behind — balance it out.
       </p>
 
+      <div style={{ padding: "18px", background: CA, borderRadius: 6, border: `1px solid ${B2}`, marginBottom: 16 }}>
+        <div style={{ fontSize: 11, fontWeight: 700, color: MU, letterSpacing: "0.15em", textTransform: "uppercase", marginBottom: 10 }}>Skin Tone</div>
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 18 }}>
+          {SKIN_TONES.map((tone) => (
+            <SkinSwatch key={tone.hex} tone={tone} active={skinTone === tone.hex} onClick={() => setSkinTone(tone.hex)} />
+          ))}
+        </div>
+        <div style={{ fontSize: 11, fontWeight: 700, color: MU, letterSpacing: "0.15em", textTransform: "uppercase", marginBottom: 10 }}>Body Type</div>
+        <div style={{ display: "flex", gap: 8 }}>
+          <BodyTypeButton label="🧍 STANDING" active={bodyType === "standing"} onClick={() => setBodyType("standing")} />
+          <BodyTypeButton label="🦽 WHEELCHAIR" active={bodyType === "wheelchair"} onClick={() => setBodyType("wheelchair")} />
+        </div>
+      </div>
+
       <div style={{ padding: "20px", background: CA, borderRadius: 6, border: `1px solid ${B2}`, marginBottom: 24, textAlign: "center" }}>
-        <Avatar3D stats={stats} />
+        <Avatar3D stats={stats} skinTone={skinTone} bodyType={bodyType} />
         <div style={{ fontSize: 11, color: MU, marginTop: 10 }}>🖱️ Drag to spin · Scroll to zoom</div>
         <div style={{ marginTop: 12, display: "flex", justifyContent: "center", gap: 10, flexWrap: "wrap" }}>
           <div style={{ padding: "6px 14px", background: "#1a1a00", border: `1px solid ${AC}44`, borderRadius: 4, fontSize: 12, color: AC, fontWeight: 900 }}>LEVEL {level}</div>

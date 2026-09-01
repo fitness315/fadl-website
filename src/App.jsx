@@ -550,7 +550,7 @@ function Dashboard({ session, name, onLogout }) {
           </>
         )}
 
-        {tab === "avatar" && <AvatarPanel stats={stats} totalWorkouts={totalWorkouts} />}
+        {tab === "avatar" && <AvatarPanel stats={stats} totalWorkouts={totalWorkouts} userId={session?.user?.id} />}
 
         {tab === "nutrition" && (
           <div>
